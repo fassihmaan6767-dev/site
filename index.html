@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Graphic Designer Portfolio — Liquid Glass</title>
+  <meta name="description" content="Modern portfolio for a graphic designer with a liquid glass effect and soft gradients in a dark theme." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --text: #f3f5f7;
+      --muted: #a9b2c0;
+      --glass: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --grad-1: #7c5cff;
+      --grad-2: #30cfd0;
+      --grad-3: #ff6b6b;
+      --grad-4: #ffd166;
+      /* Added from button code */
+      --transition: 260ms cubic-bezier(.2,.9,.2,1);
+      --black-700: #0d0d0d;
+      --accent1: #7a3ef1;
+      --accent2: #9a54ff;
+      --particle-color: hsla(270,96%,75%,0.98);
+    }
+    html, body { height: 100%; overflow-x: hidden; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); }
+
+    .blob { filter: blur(40px); opacity: .55; mix-blend-mode: screen; pointer-events: none; }
+    @keyframes float {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(20px, -20px) scale(1.05); }
+      66% { transform: translate(-15px, 10px) scale(0.98); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .float-1 { animation: float 12s ease-in-out infinite; }
+    .float-2 { animation: float 16s ease-in-out infinite 1s; }
+    .float-3 { animation: float 18s ease-in-out infinite 2s; }
+
+    .grain:before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .06;
+      background-image: radial-gradient(circle at 10% 10%, #ffffff 1px, transparent 1px),
+                       radial-gradient(circle at 50% 30%, #ffffff 1px, transparent 1px),
+                       radial-gradient(circle at 80% 60%, #ffffff 1px, transparent 1px);
+      background-size: 120px 120px, 200px 200px, 160px 160px;
+      mix-blend-mode: soft-light; z-index: 0;
+    }
+
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .grad-text {
+      background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-4));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    .shine { position: relative; overflow: hidden; }
+    .shine:before {
+      content: ""; position: absolute; top: -100%; left: -50%; width: 50%; height: 300%;
+      transform: rotate(25deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: transform .6s ease;
+    }
+    .shine:hover:before { transform: translateX(250%) rotate(25deg); }
+
+    .backdrop { background: rgba(6, 8, 12, 0.65); backdrop-filter: blur(10px); }
+
+    .focus-visible:focus { outline: 2px solid #8b5cf6; outline-offset: 2px; }
+
+    .loading-screen {
+      position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 9999;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease;
+    }
+    .loading-screen.slide-up { transform: translateY(-100%); }
+    .loading-screen.hidden { opacity: 0; visibility: hidden; }
+
+    .blur-reveal { filter: blur(10px); opacity: 0; transform: translateY(20px); transition: filter 1.2s ease, opacity 1.2s ease, transform 1.2s ease; }
+    .blur-reveal.revealed { filter: blur(0px); opacity: 1; transform: translateY(0px); }
+    .blur-reveal.delay-1 { transition-delay: 0.2s; }
+    .blur-reveal.delay-2 { transition-delay: 0.4s; }
+
+    .blur-reveal-word { display:inline-block; filter: blur(8px); opacity:0; transform: translateY(15px); transition: filter .8s ease, opacity .8s ease, transform .8s ease; }
+    .blur-reveal-word.revealed { filter: blur(0); opacity:1; transform: translateY(0); }
+    .blur-reveal-word-sub { display:inline-block; filter: blur(6px); opacity:0; transform: translateY(10px); transition: filter .6s ease, opacity .6s ease, transform .6s ease; }
+    .blur-reveal-word-sub.revealed { filter: blur(0); opacity:1; transform: translateY(0); }
+
+    .loading-logo { width:80px; height:80px; margin-bottom:2rem; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+    .loading-progress { width:300px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-bottom:1rem; }
+    .loading-bar { height:100%; background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-4)); border-radius:2px; width:0%; transition: width 0.1s ease; }
+    .loading-text { color:var(--text); font-size:14px; font-weight:500; opacity:.8; }
+    .loading-percentage { background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-4)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
+
+    .portfolio-swiper { width:100%; height:400px; padding:20px 0; position:relative; }
+    .portfolio-swiper .swiper-wrapper { will-change: transform; backface-visibility: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+    .portfolio-swiper .swiper-slide { display:flex; justify-content:center; align-items:center; border-radius:16px; overflow:hidden; cursor:pointer; transition: transform 0.3s ease; transform: translateZ(0); will-change: transform; }
+    .portfolio-swiper .swiper-slide:hover { transform: translateZ(0) scale(1.01); }
+    .portfolio-swiper .swiper-slide img { width:100%; height:100%; object-fit:cover; border-radius:16px; transition: transform 0.3s ease, filter 0.3s ease; backface-visibility: hidden; will-change: transform; }
+
+    @media (min-width: 1024px) {
+      .portfolio-swiper::before, .portfolio-swiper::after {
+        content:""; position:absolute; top:0; bottom:0; width:48px; z-index:5; pointer-events:none;
+      }
+      .portfolio-swiper::before { left:0; background: linear-gradient(to right, rgba(10,11,16,0.95) 0%, rgba(10,11,16,0.5) 40%, rgba(10,11,16,0) 100%); }
+      .portfolio-swiper::after { right:0; background: linear-gradient(to left, rgba(10,11,16,0.95) 0%, rgba(10,11,16,0.5) 40%, rgba(10,11,16,0) 100%); }
+    }
+
+    body.lightbox-active { overflow: hidden; }
+    .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; backdrop-filter: blur(0px); opacity:0; pointer-events:none; transition: opacity .4s ease, backdrop-filter .4s ease; z-index:9999; }
+    .lightbox.active { opacity:1; pointer-events:auto; backdrop-filter: blur(10px); }
+    .lightbox-content { position:relative; max-width:90%; max-height:90%; display:flex; justify-content:center; align-items:center; }
+    .lightbox img { max-width:90%; max-height:90%; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.5); transform:scale(0.8); opacity:0; transition: transform .4s ease, opacity .4s ease; }
+    .lightbox.active img { transform:scale(1); opacity:1; }
+    .lightbox-close { position:absolute; top:20px; right:20px; width:44px; height:44px; background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); border-radius:50%; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: background .3s ease, transform .3s ease; z-index:10001; }
+    .lightbox-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+
+    .portfolio-swiper .swiper-button-next,
+    .portfolio-swiper .swiper-button-prev { color:var(--text); background:var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border:1px solid var(--border); border-radius:50%; width:44px; height:44px; margin-top:-22px; transition: all .3s ease; }
+    .portfolio-swiper .swiper-button-next:hover,
+    .portfolio-swiper .swiper-button-prev:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+    .portfolio-swiper .swiper-button-next:after,
+    .portfolio-swiper .swiper-button-prev:after { font-size:16px; font-weight:bold; }
+
+    .portfolio-swiper .swiper-pagination-bullet { background: rgba(255,255,255,0.3); opacity:1; width:12px; height:12px; transition: all .3s ease; }
+    .portfolio-swiper .swiper-pagination-bullet-active { background: linear-gradient(90deg, var(--grad-1), var(--grad-2)); transform: scale(1.2); }
+
+    #ribbonCanvas { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:99999; }
+
+    .btn-shimmer { position:relative; overflow:hidden; transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease; will-change: transform; }
+    .btn-shimmer:hover { transform: translateY(-2px) scale(1.06); box-shadow: 0 10px 28px rgba(124,92,255,0.25), 0 6px 18px rgba(48,207,208,0.18); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+    .btn-shimmer img { transition: transform .22s ease; }
+    .btn-shimmer:hover img { transform: scale(1.05); }
+    .btn-shimmer::after { content:""; position:absolute; inset:-20%; background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 65%, transparent 100%); transform: translateX(-120%); opacity:0; pointer-events:none; }
+    .btn-shimmer.active::after { opacity:1; transform: translateX(120%); transition: transform .6s ease, opacity .6s ease; }
+
+    .digit-container { display:inline-block; overflow:hidden; height:1em; width:0.7em; position:relative; }
+    .digit { display:block; transform: translateY(100%); opacity:0; }
+    .digit.show { animation: rollUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes rollUp {
+      0% { transform: translateY(100%); opacity:0; filter: blur(4px); }
+      70% { transform: translateY(-12%); opacity:1; filter: blur(2px); }
+      90% { transform: translateY(4%); filter: blur(1px); }
+      100% { transform: translateY(0); opacity:1; filter: blur(0); }
+    }
+
+    .shimmer-text {
+      color: rgba(255,255,255,.75);
+      font-size: clamp(14px,1.2vw,16px);
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      background: linear-gradient(
+        90deg,
+        #ffffff80 0%,
+        #ffffff 50%,
+        #ffffff80 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .nav-backdrop { position:fixed; inset:0; background: rgba(6,8,12,0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity:0; pointer-events:none; transition: opacity .4s ease; z-index:30; }
+    .nav-backdrop.show { opacity:1; pointer-events:auto; }
+
+    .mobile-menu {
+      position:fixed; left:1rem; right:1rem; top:72px; z-index:40; background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1); border-radius:1rem; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      transform: translateY(-20px); opacity:0; pointer-events:none; will-change: transform, opacity;
+      transition: transform .7s cubic-bezier(0.22, 1, 0.36, 1), opacity .7s ease; overflow:hidden;
+    }
+    .mobile-menu.open { transform: translateY(0); opacity:1; pointer-events:auto; }
+
+    .mobile-menu .menu-item { opacity:0; transform: translateY(8px); transition: transform .45s ease, opacity .45s ease, background .2s ease, color .2s ease; position:relative; }
+    .mobile-menu.open .menu-item { opacity:1; transform: translateY(0); }
+    .mobile-menu .menu-item:nth-child(1) { transition-delay:.12s; }
+    .mobile-menu .menu-item:nth-child(2) { transition-delay:.2s; }
+    .mobile-menu .menu-item:nth-child(3) { transition-delay:.28s; }
+    .mobile-menu .menu-item:nth-child(4) { transition-delay:.36s; }
+
+    .mobile-menu .menu-item::after {
+      content:""; position:absolute; left:1.25rem; right:1.25rem; bottom:.6rem; height:2px; border-radius:9999px;
+      background: linear-gradient(90deg, var(--grad-1), var(--grad-2)); transform: scaleX(0); transform-origin:left; transition: transform .25s ease; opacity:.6;
+    }
+    .mobile-menu .menu-item:hover::after { transform: scaleX(1); }
+    .mobile-menu .menu-item:hover { transform: translateY(-1px); }
+
+    .tap-bounce { animation: tap .25s ease; }
+    @keyframes tap { 0%{transform:scale(1)} 50%{transform:scale(0.92)} 100%{transform:scale(1)} }
+
+    /* Voice button states */
+    .mic-glow { box-shadow: 0 0 0 0 rgba(124,92,255,0.45); animation: pulseGlow 1.4s ease-in-out infinite; }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(124,92,255,0.45); }
+      70% { box-shadow: 0 0 0 12px rgba(124,92,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(124,92,255,0); }
+    }
+
+    /* Review Card Stack Styles */
+    .review-stack { position: relative; width: min(100%, 360px); height: 300px; perspective: 1400px; }
+    @media(max-width:640px) { .review-stack { width: 100%; height: 270px; } }
+    .review-card {
+      position: absolute; inset: 0; border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.05));
+      backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,.4);
+      padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;
+      cursor: grab; user-select: none; touch-action: pan-y;
+      transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .45s ease, box-shadow .35s ease;
+    }
+    .review-card:active { cursor: grabbing; box-shadow: 0 16px 45px rgba(0,0,0,.55); transform: scale(1.02); }
+    .review-card.hidden { opacity: 0; pointer-events: none; }
+    .review-card.pos-0 { transform: translateY(0) scale(1); z-index: 30; }
+    .review-card.pos-1 { transform: translateY(20px) scale(.95); z-index: 20; }
+    .review-card.pos-2 { transform: translateY(40px) scale(.9); z-index: 10; }
+    .review-card.pos-3 { opacity: 0; z-index: 0; }
+    .card-top { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 12px; object-fit: cover;
+      border: 1px solid rgba(255,255,255,.25); box-shadow: 0 3px 10px rgba(0,0,0,.3);
+    }
+    .meta { flex: 1; }
+    .meta .name { font-weight: 700; font-size: 14px; }
+    .meta .role { font-size: 12px; color: rgba(255,255,255,.65); }
+    .stars { color: #fbbf24; font-size: 14px; }
+    .review-image {
+      width: 100%; aspect-ratio: 800/340; object-fit: cover; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.15); cursor: pointer;
+      transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 5px 16px rgba(0,0,0,.35);
+    }
+    .review-image:hover { transform: scale(1.04); box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+    #reviewLightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none;
+      align-items: center; justify-content: center; z-index: 999;
+    }
+    #reviewLightbox img {
+      max-width: 92%; max-height: 86%; border-radius: 12px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.65);
+    }
+
+    /* --- Start of AI Button Styles --- */
+    .button {
+        --black-700: hsla(0 0% 12% / 1);
+        --border_radius: 9999px;
+        --transtion: 0.3s ease-in-out;
+        --offset: 2px;
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transform-origin: center;
+        padding: 1rem 2rem;
+        background-color: transparent;
+        border: none;
+        border-radius: var(--border_radius);
+        transform: scale(calc(1 + (var(--active, 0) * 0.1)));
+        transition: transform var(--transtion);
+    }
+    .button::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-color: var(--black-700);
+        border-radius: var(--border_radius);
+        box-shadow: inset 0 0.5px hsl(0, 0%, 100%),
+                    inset 0 -1px 2px 0 hsl(0, 0%, 0%),
+                    0px 4px 10px -4px hsla(0 0% 0% / calc(1 - var(--active, 0))),
+                    0 0 20px calc(var(--active, 0) * 0.75rem) hsl(270 96% 75% / 0.5);
+        transition: all var(--transtion);
+        z-index: 0;
+    }
+    .button::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-color: hsla(260 97% 61% / 0.75);
+        background-image: radial-gradient(at 51% 89%, hsla(266, 45%, 74%, 1) 0px, transparent 50%),
+                          radial-gradient(at 100% 100%, hsla(266, 36%, 60%, 1) 0px, transparent 50%),
+                          radial-gradient(at 22% 91%, hsla(266, 36%, 60%, 1) 0px, transparent 50%);
+        background-position: top;
+        opacity: var(--active, 0);
+        border-radius: var(--border_radius);
+        transition: opacity var(--transtion);
+        z-index: 2;
+    }
+    .button:is(:hover, :focus-visible) { --active: 1; }
+    .button:active { transform: scale(1); }
+    .button .dots_border {
+        --size_border: calc(100% + 6px);
+        overflow: hidden;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: var(--size_border);
+        height: var(--size_border);
+        background-color: transparent;
+        border-radius: var(--border_radius);
+        z-index: -10;
+    }
+    .button .dots_border::before {
+        content: "";
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(0deg);
+        transform-origin: left;
+        width: 100%;
+        height: 2.5rem;
+        background-color: rgba(255, 255, 255, 1.0);
+        mask: linear-gradient(transparent 0%, white 180%);
+        animation: rotate 2s linear infinite;
+        animation-play-state: paused;
+        opacity: 0;
+        transition: opacity var(--transtion);
+    }
+    .button:hover .dots_border::before,
+    .button:focus-visible .dots_border::before {
+        animation-play-state: running;
+        opacity: 1;
+    }
+    @keyframes rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    .button .sparkle {
+        position: relative;
+        z-index: 10;
+        width: 1.75rem;
+    }
+    .button .sparkle .path {
+        fill: currentColor;
+        stroke: currentColor;
+        color: hsl(0, 0%, 100%);
+        transform-origin: center;
+    }
+    .button .sparkle .path:nth-child(1) { --scale_path_1: 1.2; }
+    .button .sparkle .path:nth-child(2) { --scale_path_2: 1.2; }
+    .button .sparkle .path:nth-child(3) { --scale_path_3: 1.2; }
+    .button:is(:hover, :focus) .sparkle .path {
+        animation: path 1.5s linear 0.5s infinite;
+    }
+    @keyframes path {
+        0%, 34%, 71%, 100% { transform: scale(1); }
+        17% { transform: scale(var(--scale_path_1, 1)); }
+        49% { transform: scale(var(--scale_path_2, 1)); }
+        83% { transform: scale(var(--scale_path_3, 1)); }
+    }
+    .button .text_button {
+        position: relative;
+        z-index: 10;
+        background-image: linear-gradient(90deg, hsla(0 0% 100% / 1) 0%, hsla(0 0% 100% / var(--active, 0)) 120%);
+        background-clip: text;
+        font-size: 1rem;
+        color: transparent;
+        font-weight: bold;
+    }
+    .particle {
+        pointer-events: none;
+        z-index: 1;
+        transition: none;
+    }
+    .particle-area {
+        position: absolute;
+        top: -100px;
+        left: -100px;
+        right: -100px;
+        bottom: -100px;
+        pointer-events: none;
+    }
+    /* Correction for floating AI button particle area */
+    #aiBtn > .particle-area {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    /* --- End of AI Button Styles --- */
+
+    /* --- Styles for Floating AI Button --- */
+    .floating {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      transform: translateX(140%);
+      opacity: 0;
+      transition: transform .45s cubic-bezier(.2, .9, .2, 1), opacity .28s ease;
+      z-index: 9999;
+    }
+
+    .floating.visible {
+      transform: translateX(0);
+      opacity: 1
+    }
+
+    .ai-button {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: var(--black-700);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, .7), inset 0 .5px rgba(255, 255, 255, .02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: visible;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .ai-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(122, 62, 241, 0.92), rgba(154, 84, 255, 0.95));
+      clip-path: inset(0 0 100% 0);
+      opacity: 1;
+      transform: scale(1);
+      transition: clip-path .6s cubic-bezier(.16, .84, .3, 1), opacity .45s ease;
+      mix-blend-mode: screen;
+      background-size: 200% 200%;
+    }
+
+    .ai-button.hover-wave::before {
+      clip-path: inset(0 0 0 0);
+      animation: waveShift 2.3s linear infinite;
+    }
+
+    @keyframes waveShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .ai-button::after {
+      content: "";
+      position: absolute;
+      left: -40%;
+      top: 0;
+      right: -40%;
+      bottom: 0;
+      z-index: 2;
+      border-radius: 50%;
+      background: repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.03) 0 6px, rgba(255, 255, 255, 0.0) 6px 18px);
+      transform: translateY(8%) scale(0.95);
+      opacity: 0;
+      transition: opacity .45s ease, transform .6s cubic-bezier(.16, .84, .3, 1);
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    .ai-button.hover-wave::after {
+      opacity: .9;
+      transform: translateY(0) scale(1);
+      animation: waveDrift 1.6s linear infinite;
+    }
+
+    @keyframes waveDrift {
+      0% { transform: translateY(3%) rotate(0deg); }
+      50% { transform: translateY(-3%) rotate(2deg); }
+      100% { transform: translateY(3%) rotate(0deg); }
+    }
+
+    .ai-label {
+      position: relative;
+      z-index: 3;
+      font-weight: 900;
+      font-size: 19px;
+      line-height: 1;
+      color: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: 0.6px;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.65);
+    }
+
+    .ai-label strong {
+      font-weight: 1000;
+      letter-spacing: 0.9px;
+    }
+
+    .star-wrap {
+      position: absolute;
+      left: 100%;
+      top: 0;
+      transform: translate(-87%, -57%);
+      width: 10px;
+      height: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .star {
+      width: 100%;
+      height: 100%;
+      color: #fff;
+      transform-origin: center center;
+      opacity: 1;
+    }
+
+    .star.blink {
+      animation: pulseStar 1.3s linear infinite;
+    }
+
+    @keyframes pulseStar {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    #floatingWrap .particle {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 6px 10px rgba(122, 62, 241, 0.15));
+    }
+  </style>
+</head>
+<body class="grain selection:bg-violet-500/30 selection:text-white">
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="grain"></div>
+    <div aria-hidden="true" class="fixed inset-0 -z-10 overflow-hidden">
+      <div class="blob float-1 absolute -top-20 -left-10 h-72 w-72 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-1), transparent 60%);"></div>
+      <div class="blob float-2 absolute top-1/3 -right-10 h-96 w-96 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-2), transparent 60%);"></div>
+      <div class="blob float-3 absolute bottom-0 left-1/4 h-96 w-96 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-3), transparent 60%);"></div>
+    </div>
+    <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/about-me-pic/main/Copy%20of%20Letter%20F%20Logo%20With%20Business%20and%20Rocket%20Concept.%20(2).png" alt="Logo" class="loading-logo" />
+    <div class="loading-progress"><div id="loadingBar" class="loading-bar"></div></div>
+    <div class="loading-text">Loading <span id="loadingPercentage" class="loading-percentage">0%</span></div>
+  </div>
+
+  <!-- Cloth Ribbons Canvas -->
+  <canvas id="ribbonCanvas"></canvas>
+
+  <!-- Decorative blobs (page) -->
+  <div aria-hidden="true" class="fixed inset-0 -z-10 overflow:hidden overflow-hidden">
+    <div class="blob float-1 absolute -top-20 -left-10 h-72 w-72 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-1), transparent 60%);"></div>
+    <div class="blob float-2 absolute top-1/3 -right-10 h-96 w-96 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-2), transparent 60%);"></div>
+    <div class="blob float-3 absolute bottom-0 left-1/4 h-96 w-96 rounded-full" style="background: radial-gradient(50% 50% at 50% 50%, var(--grad-3), transparent 60%);"></div>
+  </div>
+
+  <!-- Nav -->
+  <header class="sticky top-0 z-40">
+    <div class="mx-auto max-w-7xl px-6 pt-5">
+      <nav class="glass rounded-2xl px-5 py-3 flex items-center justify-between relative z-50">
+        <a href="#" class="flex items-center gap-3">
+          <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/about-me-pic/main/Copy%20of%20Letter%20F%20Logo%20With%20Business%20and%20Rocket%20Concept.%20(2).png" alt="Letter-F-Logo-With-Business-and-Rocket-Concept" class="h-9 w-9 rounded-xl object-cover" />
+          <span class="text-sm uppercase tracking-widest text-white/70">Fasih ur Rehman</span>
+        </a>
+        <div class="hidden md:flex items-center gap-1">
+          <a href="#work" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition focus-visible">Work</a>
+          <a href="#about" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition focus-visible">About</a>
+          <a href="#reviews" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition focus-visible">Reviews</a>
+          <a href="#contact" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition focus-visible">Contact</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="downloadResume" class="shine hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 hover:brightness-110 transition focus-visible">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+            Download Resume
+          </button>
+          <button id="mobileMenuBtn" class="md:hidden inline-flex items-center justify-center rounded-xl bg-white/5 p-2 text-white/80 hover:text-white hover:bg-white/10 transition focus-visible" aria-label="Toggle menu">
+            <span class="relative block h-5 w-6">
+              <span class="line top absolute left-0 right-0 h-0.5 bg-white/80 rounded transition-all duration-300 ease-out" style="top:4px"></span>
+              <span class="line mid absolute left-0 right-0 h-0.5 bg-white/80 rounded transition-all duration-300 ease-out" style="top:10px"></span>
+              <span class="line bot absolute left:0 left-0 right-0 h-0.5 bg-white/80 rounded transition-all duration-300 ease-out" style="top:16px"></span>
+            </span>
+          </button>
+        </div>
+      </nav>
+      <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="#work" class="menu-item block px-5 py-3 text-white/80 hover:text-white hover:bg-white/5">Work</a>
+        <a href="#about" class="menu-item block px-5 py-3 text-white/80 hover:text-white hover:bg-white/5">About</a>
+        <a href="#reviews" class="menu-item block px-5 py-3 text-white/80 hover:text-white hover:bg-white/5">Reviews</a>
+        <a href="#contact" class="menu-item block px-5 py-3 text-white/80 hover:text-white hover:bg-white/5">Contact</a>
+      </div>
+      <div id="navBackdrop" class="nav-backdrop" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative mx-auto max-w-7xl px-6 pt-14 md:pt-20">
+      <div class="grid lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-xs text-white/80 border border-white/10">
+            Available for freelance
+            <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+          </span>
+          <h1 id="mainHeading" class="mt-5 text-4xl md:text-6xl font-extrabold leading-tight">
+            <span class="blur-reveal-word">Blending</span> <span class="blur-reveal-word grad-text">creativity</span> <span class="blur-reveal-word">and</span> <span class="blur-reveal-word">strategy</span> <span class="blur-reveal-word">to</span> <span class="blur-reveal-word">shape</span> <span class="blur-reveal-word grad-text">unforgettable</span> <span class="blur-reveal-word grad-text">designs</span><span class="blur-reveal-word">.</span>
+          </h1>
+          <p id="subHeading" class="mt-5 text-white/70 max-w-2xl">
+            <span class="blur-reveal-word-sub">Thumbnail</span> <span class="blur-reveal-word-sub">designer</span> <span class="blur-reveal-word-sub">crafting</span> <span class="blur-reveal-word-sub">eye-catching,</span> <span class="blur-reveal-word-sub">click-worthy</span> <span class="blur-reveal-word-sub">visuals</span> <span class="blur-reveal-word-sub">that</span> <span class="blur-reveal-word-sub">boost</span> <span class="blur-reveal-word-sub">views</span> <span class="blur-reveal-word-sub">and</span> <span class="blur-reveal-word-sub">engagement.</span>
+          </p>
+          
+          <!-- Ask AI Button -->
+          <div class="mt-8">
+            <a href="https://www.jotform.com/agent/0198940e466c7c6693f9e7e9dbd17f8847cf" target="_blank" rel="noopener noreferrer" class="relative w-fit h-fit" id="button-wrapper">
+                <button class="button" id="ai-button">
+                    <div class="dots_border"></div>
+                    <svg class="sparkle" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path class="path" d="M14.187 8.096L15 5.25L15.813 8.096C16.0231 8.83114 16.4171 9.50062 16.9577 10.0413C17.4984 10.5819 18.1679 10.9759 18.903 11.186L21.75 12L18.904 12.813C18.1689 13.0231 17.4994 13.4171 16.9587 13.9587C16.4181 14.4984 16.0241 15.1679 15.814 15.903L15 18.75L14.187 15.904C13.9769 15.1689 13.5829 14.4994 13.0423 13.9587C12.5016 13.4181 11.8321 13.0241 11.097 12.814L8.25 12L11.096 11.187C11.8311 10.9769 12.5006 10.5829 13.0413 10.0423C13.5819 9.50162 13.9759 8.83214 14.186 8.097L14.187 8.096Z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path class="path" d="M6 14.25L5.741 15.285C5.59267 15.8785 5.28579 16.4206 4.85319 16.8532C4.42059 17.2858 3.87853 17.5927 3.285 17.741L2.25 18L3.285 18.259C3.87853 18.4073 4.42059 18.7142 4.85319 19.1468C5.28579 19.5794 5.59267 20.1215 5.741 20.715L6 21.75L6.259 20.715C6.40725 20.1216 6.71398 19.5796 7.14639 19.147C7.5788 18.7144 8.12065 18.4075 8.714 18.259L9.75 18L8.714 17.741C8.12065 17.5925 7.5788 17.2856 7.14639 16.853C6.71398 16.4204 6.40725 15.8784 6.259 15.285L6 14.25Z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path class="path" d="M6.5 4L6.303 4.5915C6.24777 4.75718 6.15472 4.90774 6.03123 5.03123C5.90774 5.15472 5.75718 5.24777 5.5915 5.303L5 5.5L5.5915 5.697C5.75718 5.75223 5.90774 5.84528 6.03123 5.96877C6.15472 6.09226 6.24777 6.24282 6.303 6.4085L6.5 7L6.697 6.4085C6.75223 6.24282 6.84528 6.09226 6.96877 5.96877C7.09226 5.84528 7.24282 5.75223 7.4085 5.697L8 5.5L7.4085 5.303C7.24282 5.24777 7.09226 5.15472 6.96877 5.03123C6.84528 4.90774 6.75223 4.75718 6.697 4.5915L6.5 4Z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="text_button">Ask Ai</span>
+                </button>
+                <div id="particle-area" class="particle-area"></div>
+            </a>
+          </div>
+
+          <!-- Social Buttons -->
+          <div class="flex items-center gap-4 mt-4">
+            <!-- TikTok Button -->
+            <a id="heroTiktokBtn" href="https://www.tiktok.com/@fasih_04_?_t=ZS-8ywqaA2dvpY&_r=1" target="_blank" 
+               class="w-12 h-12 rounded-xl glass flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/25 hover:bg-white/10">
+              <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/tiktok-svg/main/PhotoRoom-20250816_182941.png" alt="TikTok" class="h-6 w-6 object-contain" />
+            </a>
+
+            <!-- Fiverr Button -->
+            <a id="heroFiverrBtn" href="https://www.fiverr.com/fasih_designer_?public_mode=true" target="_blank" 
+               class="w-12 h-12 rounded-xl glass flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-400/25 hover:bg-white/10">
+              <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/fiverr-logo/main/PhotoRoom-20250817_183009.png" alt="Fiverr" class="h-6 w-6 object-contain" />
+            </a>
+          </div>
+        </div>
+        <div class="lg:col-span-6">
+          <div id="heroImage" class="blur-reveal delay-2 relative transform translate-y-8 opacity-0 transition-all duration-1000 ease-out">
+            <div class="absolute -inset-0.5 rounded-[22px] bg-gradient-to-br from-violet-500/50 via-cyan-400/40 to-amber-300/40 blur-2xl -z-10"></div>
+            <div class="glass rounded-2xl p-6">
+              <div class="rounded-2xl overflow-hidden border-2 border-white/10 bg-black/30 p-1.5">
+                <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/hero-section-pic/main/Untitled-design-18.png" alt="Untitled-design-18" style="display:block; width:100%; height:auto;" />
+                <div class="mt-3 text-sm text-white/70">
+                  <a target="_blank" href="https://imgbb.com/">how to copy an image from google</a>
+                </div>
+              </div>
+            </div>
+            <div class="absolute -bottom-6 -left-6 hidden md:block">
+              <div class="glass rounded-2xl px-4 py-3 text-sm text-white/90 flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-black font-bold">A+</span>
+                <div>
+                  <p class="font-semibold">Clean, bold visuals</p>
+                  <p class="text-white/60">Thoughtful composition and type</p>
+                </div>
+              </div>
+            </div>
+            <div class="absolute -top-6 -right-6 hidden md:block">
+              <div class="glass rounded-2xl px-4 py-3 text-sm text-white/90 flex items-center gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-amber-300 text-black font-bold">★</span>
+                <div>
+                  <p class="font-semibold">Brand-driven approach</p>
+                  <p class="text-white/60">Strategy meets style</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- My Work -->
+    <section id="work" class="mx-auto max-w-7xl px-6 pt-20">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-extrabold">My Work</h2>
+        <p class="shimmer-text mt-3">Thumbnails that stop the scroll and start the views.</p>
+      </div>
+      <div class="mt-12">
+        <div class="swiper portfolio-swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><div class="glass rounded-2xl overflow-hidden"><img src="https://raw.githubusercontent.com/fassihmaan6767-dev/-images-for-my-portfolio-website/main/productivity%20thumbnail.png" alt="Productivity Thumbnail" /></div></div>
+            <div class="swiper-slide"><div class="glass rounded-2xl overflow-hidden"><img src="https://raw.githubusercontent.com/fassihmaan6767-dev/-images-for-my-portfolio-website/main/Tips%20%26%20Tricks%20Thumbnail.png" alt="Tips & Tricks Thumbnail" /></div></div>
+            <div class="swiper-slide"><div class="glass rounded-2xl overflow-hidden"><img src="https://raw.githubusercontent.com/fassihmaan6767-dev/-images-for-my-portfolio-website/main/Podcast%20Thumbnail.png" alt="Podcast Thumbnail" /></div></div>
+            <div class="swiper-slide"><div class="glass rounded-2xl overflow-hidden"><img src="https://raw.githubusercontent.com/fassihmaan6767-dev/-images-for-my-portfolio-website/main/Explanation%20Thumbnail.jpg" alt="Explanation Thumbnail" /></div></div>
+            <div class="swiper-slide"><div class="glass rounded-2xl overflow-hidden"><img src="https://raw.githubusercontent.com/fassihmaan6767-dev/-images-for-my-portfolio-website/main/Documentary%20Thumbnail.png" alt="Documentary Thumbnail" /></div></div>
+          </div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="mx-auto max-w-7xl px-6 pt-20">
+      <div class="grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-5">
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-4">About Me</h2>
+          <div class="relative">
+            <div class="absolute -inset-0.5 rounded-[22px] bg-gradient-to-br from-cyan-400/40 to-violet-500/40 blur-2xl -z-10"></div>
+            <div class="glass rounded-2xl p-6">
+              <div class="flex items-center gap-4">
+                <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/about-me-pic/main/Copy%20of%20Letter%20F%20Logo%20With%20Business%20and%20Rocket%20Concept.%20(2).png" alt="Profile photo of Fasih ur Rehman" class="h-20 w-20 rounded-2xl object-cover border border-white/10" />
+                <div>
+                  <h3 class="font-extrabold text-xl">Fasih ur Rehman</h3>
+                  <p class="shimmer-text">Graphic Designer</p>
+                </div>
+              </div>
+              <p class="text-white/70 mt-5">I design eye-catching YouTube thumbnails that grab attention, boost clicks, and reflect the creator's unique style. Always exploring creative trends, always delivering results.</p>
+              <div class="mt-6 grid grid-cols-3 gap-3">
+                <div class="rounded-xl bg-white/5 border border-white/10 px-4 py-3"><p class="text-2xl font-extrabold"><span id="years"></span>+</p><p class="text-white/60 text-xs">Years</p></div>
+                <div class="rounded-xl bg-white/5 border border-white/10 px-4 py-3"><p class="text-2xl font-extrabold"><span id="projects"></span>+</p><p class="text-white/60 text-xs">Projects</p></div>
+                <div class="rounded-xl bg-white/5 border border-white/10 px-4 py-3"><p class="text-2xl font-extrabold"><span id="delivery"></span> h</p><p class="text-white/60 text-xs">Delievery Time</p></div>
+              </div>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs shimmer-text">YouTube Thumbnails</span>
+                <span class="rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs shimmer-text">Custom Designs</span>
+                <span class="rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs shimmer-text">Click-Through Boost</span>
+                <span class="rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs shimmer-text">Engaging Visuals</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-7">
+          <h2 class="text-3xl font-extrabold">Approach</h2>
+          <p class="text-white/70 mt-3 max-w-2xl">Great design builds trust. I start with goals and audience, then develop visuals that are flexible and distinct. I love crisp typography, warm gradients and playful details.</p>
+          <div class="mt-6 grid sm:grid-cols-2 gap-4">
+            <div class="glass rounded-2xl p-5"><div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-black font-bold">1</div><h3 class="mt-3 font-bold">Discover</h3><p class="text-white/70 mt-1">Understand needs and define success.</p></div>
+            <div class="glass rounded-2xl p-5"><div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 text-white font-bold">2</div><h3 class="mt-3 font-bold">Design</h3><p class="text-white/70 mt-1">Explore systems, iterate and refine.</p></div>
+            <div class="glass rounded-2xl p-5"><div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-rose-400 text-black font-bold">3</div><h3 class="mt-3 font-bold">Deliver</h3><p class="text-white/70 mt-1">Package assets and guidelines.</p></div>
+            <div class="glass rounded-2xl p-5"><div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold">★</div><h3 class="mt-3 font-bold">Support</h3><p class="text-white/70 mt-1">Ongoing collaboration as you grow.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section id="reviews" class="mx-auto max-w-7xl px-6 pt-20">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold">Client Reviews</h2>
+        <p class="shimmer-text mt-3">Swipe cards to dismiss • Tap image to see full review</p>
+      </div>
+
+      <div class="flex justify-center">
+        <div id="reviewStack" class="review-stack">
+          <article class="review-card">
+            <div class="card-top">
+              <img class="avatar" src="https://raw.githubusercontent.com/fassihmaan6767-dev/Avatar-images-of-clients/refs/heads/main/MOHSIN.png" alt="Syed Mohsin Raza Bukhari">
+              <div class="meta">
+                <div class="name"><b>Syed Mohsin Raza Bukhari</b></div>
+                <div class="role">Gaming Channel</div>
+              </div>
+              <div class="stars">★★★★☆</div>
+            </div>
+            <img class="review-image" src="https://raw.githubusercontent.com/fassihmaan6767-dev/first-review-card-pics/refs/heads/main/Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed.png" data-full="https://raw.githubusercontent.com/fassihmaan6767-dev/first-review-card-pics/refs/heads/main/Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed%20(1).png" alt="Review from Syed Mohsin Raza Bukhari">
+          </article>
+          <article class="review-card">
+            <div class="card-top">
+              <img class="avatar" src="https://raw.githubusercontent.com/fassihmaan6767-dev/Avatar-images-of-clients/refs/heads/main/PhotoRoom-20250830_194703.png" alt="Johnny Stevens">
+              <div class="meta">
+                <div class="name"><b>Johnny Stevens</b></div>
+                <div class="role">Podcast Channel</div>
+              </div>
+              <div class="stars">★★★★★</div>
+            </div>
+            <img class="review-image" src="https://raw.githubusercontent.com/fassihmaan6767-dev/second-review-card-images-/refs/heads/main/Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed.png" data-full="https://raw.githubusercontent.com/fassihmaan6767-dev/second-review-card-images-/refs/heads/main/Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed%20(1).png" alt="Review from Johnny Stevens">
+          </article>
+          <article class="review-card">
+            <div class="card-top">
+              <img class="avatar" src="https://raw.githubusercontent.com/fassihmaan6767-dev/Avatar-images-of-clients/refs/heads/main/PhotoRoom-20250830_194844.png" alt="James Robert">
+              <div class="meta">
+                <div class="name"><b>James Robert</b></div>
+                <div class="role">Documentary Channel</div>
+              </div>
+              <div class="stars">★★★★✰</div>
+            </div>
+            <img class="review-image" src="https://raw.githubusercontent.com/fassihmaan6767-dev/third-review-card-images-/refs/heads/main/Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed%20(2).png" data-full="https://raw.githubusercontent.com/fassihmaan6767-dev/third-review-card-images-/refs/heads/main/Copy%20of%20Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed.png" alt="Review from James Robert">
+          </article>
+          <article class="review-card">
+            <div class="card-top">
+              <img class="avatar" src="https://raw.githubusercontent.com/fassihmaan6767-dev/Avatar-images-of-clients/refs/heads/main/PhotoRoom-20250830_194554.png" alt="Mark Thompson">
+              <div class="meta">
+                <div class="name"><b>Mark Thompson</b></div>
+                <div class="role">Explanation Channel</div>
+              </div>
+              <div class="stars">★★★★☆</div>
+            </div>
+            <img class="review-image" src="https://raw.githubusercontent.com/fassihmaan6767-dev/fourth-review-card-pics/refs/heads/main/Copy%20of%20Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed%20(1).png" data-full="https://raw.githubusercontent.com/fassihmaan6767-dev/fourth-review-card-pics/refs/heads/main/Copy%20of%20Copy%20of%20Copy%20of%20Affordable%2C%20professional%2C%20and%20exactly%20what%20I%20needed%20(1).png" alt="Review from Mark Thompson">
+          </article>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="text-3xl font-extrabold grad-text mb-2">98%</div>
+          <p class="text-white/70 text-sm">Client Satisfaction</p>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold grad-text mb-2">24h</div>
+          <p class="text-white/70 text-sm">Average Delivery</p>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold grad-text mb-2">18+</div>
+          <p class="text-white/70 text-sm">Happy Clients</p>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold grad-text mb-2">20+</div>
+          <p class="text-white/70 text-sm">Thumbnails Created</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="mx-auto max-w-7xl px-6 pt-20">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold">Get In Touch</h2>
+        <p class="shimmer-text mt-3">Ready to bring your vision to life? Let's create something amazing together.</p>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-5">
+          <div class="glass rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-6">Let's Connect</h3>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <p class="font-semibold">Email</p>
+                  <button id="copyEmail" class="text-white/70 hover:text-white transition">fassihmaan6767@gmail.com</button>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                  <p class="font-semibold">Location</p>
+                  <p class="text-white/70">Lahore, Pakistan</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-amber-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <p class="font-semibold">Response Time</p>
+                  <p class="text-white/70">Within 24 hours</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8">
+              <p class="text-sm text-white/60 mb-4">Follow me on social media</p>
+              <div class="flex items-center gap-3">
+                <a id="tiktokBtn" href="https://www.tiktok.com/@fasih_04_?_t=ZS-8yvU3a0vYfP&_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="btn-shimmer inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition border border-white/10">
+                  <img src="https://raw.githubusercontent.com/fassihmaan6767-dev/tiktok-svg/main/PhotoRoom-20250816_182941.png" alt="TikTok" class="h-8 w-8 object-contain" />
+                  <span class="sr-only">TikTok</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="glass rounded-2xl p-6">
+            <form id="contactForm" action="https://api.web3forms.com/submit" method="POST" class="space-y-6">
+              <input type="hidden" name="access_key" value="4e607e55-d0c8-4824-bd64-e7417b069250">
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="name" class="block text-sm font-semibold text-white mb-2">Name</label>
+                  <input type="text" id="name" name="name" required placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition">
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-semibold text-white mb-2">Email</label>
+                  <input type="email" id="email" name="email" required placeholder="your@email.com" class="w-full px-4 py-3 rounded-xl bg:white bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition">
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label for="message" class="block text-sm font-semibold text-white">Message</label>
+                  <div class="flex items-center gap-2">
+                    <span id="voiceStatus" class="hidden text-xs text-emerald-400 px-2 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/20">Listening…</span>
+                    <button type="button" id="voiceBtn" class="inline-flex items-center gap-2 rounded-xl bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 border border-white/10 transition" aria-label="Speak your message">
+                      <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2z"/><path d="M13 19.93V22h-2v-2.07A8.001 8.001 0 0 1 4 12h2a6 6 0 1 0 12 0h2a8.001 8.001 0 0 1-7 7.93z"/></svg>
+                      <span id="micText">Speak</span>
+                    </button>
+                  </div>
+                </div>
+                <textarea id="message" name="message" required placeholder="Tell me about your project..." rows="5" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition resize-none"></textarea>
+                <div class="mt-2 flex flex-col gap-2">
+                  <p id="voiceHelp" class="text-xs text-white/50 hidden">Voice input isn't available in this browser.</p>
+                  <div class="flex items-center gap-2">
+                    <button type="button" id="openSecure" class="hidden text-xs rounded-lg px-2.5 py-1.5 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition">Open in secure tab</button>
+                    <button type="button" id="checkMic" class="hidden text-xs rounded-lg px-2.5 py-1.5 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition">Check mic</button>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="shine w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-6 py-3 font-semibold text-white shadow-lg hover:brightness-110 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-20">
+    <div class="mx-auto max-w-7xl px-6 pb-10">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="text-center md:text-left">
+            <p class="font-extrabold text-xl">Let's create something timeless.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="#work" class="shine inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-4 py-2.5 font-semibold text-white hover:brightness-110 transition">Explore Projects</a>
+            <a href="#contact" class="inline-flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 font-semibold text-white/90 hover:bg-white/10 transition border border-white/10">Get in touch</a>
+          </div>
+        </div>
+        <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white/60 text-sm">
+          <p class="shimmer-text">© <span id="year"></span> Fasih ur Rehman. All rights reserved.</p>
+          <div class="flex items-center gap-3">
+            <a href="https://www.fiverr.com/fasih_designer_?public_mode=true" target="_blank" rel="noopener" class="hover:text-white">Fiverr</a>
+            <span>•</span>
+            <a href="https://www.tiktok.com/@fasih_04_?_t=ZS-8ywqaA2dvpY&_r=1" target="_blank" rel="noopener" class="hover:text-white">TikTok</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose" aria-label="Close lightbox">&times;</button>
+      <img id="lightboxImg" src="" alt="Portfolio preview">
+    </div>
+  </div>
+
+  <!-- Review Lightbox -->
+  <div id="reviewLightbox">
+    <img id="reviewLightboxImg">
+  </div>
+
+  <!-- Project Modal -->
+  <div id="modal" class="fixed inset-0 z-50 hidden">
+    <div class="backdrop absolute inset-0"></div>
+    <div class="relative z-10 mx-auto max-w-3xl p-6">
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="flex items-center justify-between p-4 border-b border-white/10">
+          <h3 id="modalTitle" class="font-bold text-lg">Project Title</h3>
+          <button id="closeModal" class="rounded-xl bg-white/5 p-2 border border-white/10 hover:bg-white/10" aria-label="Close modal">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="p-5">
+          <div id="modalImage" class="h-56 rounded-xl bg-gradient-to-br from-violet-500/40 to-cyan-400/30"></div>
+          <p id="modalDesc" class="text-white/70 mt-4">Short project description and outcomes. Tools, approach and results.</p>
+          <div class="mt-4 flex flex-wrap gap-2" id="modalTags"></div>
+        </div>
+        <div class="p-4 border-t border-white/10 flex items-center justify-between">
+          <a id="modalCaseLink" href="#" target="_blank" class="shine inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-white border border-white/10 hover:bg-white/15">View case study</a>
+          <button id="closeModalBottom" class="inline-flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-white/90 hover:bg-white/10 border border-white/10">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating AI Button -->
+  <div class="floating" id="floatingWrap">
+    <button class="ai-button" id="aiBtn" aria-label="Aı">
+      <div class="particle-area" id="particleAreaFloat"></div>
+      <div class="ai-label" aria-hidden="true">
+        <strong>A</strong><span class="i-body">&#x0131;</span>
+        <span class="star-wrap" aria-hidden="true">
+          <svg class="star" id="starSvg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.187 8.096L15 5.25L15.813 8.096C16.0231 8.83114 16.4171 9.50062 16.9577 10.0413C17.4984 10.5819 18.1679 10.9759 18.903 11.186L21.75 12L18.904 12.813C18.1689 13.0231 17.4994 13.4171 16.9587 13.9587C16.4181 14.4984 16.0241 15.1679 15.814 15.903L15 18.75L14.187 15.904C13.9769 15.1689 13.5829 14.4994 13.0423 13.9587C12.5016 13.4181 11.8321 13.0241 11.097 12.814L8.25 12L11.096 11.187C11.8311 10.9769 12.5006 10.5829 13.0413 10.0423C13.5819 9.50162 13.9759 8.83214 14.186 8.097Z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Confetti Sound -->
+  <audio id="confettiSound" preload="auto" src="https://github.com/fassihmaan6767-dev/confetti-sound/raw/refs/heads/main/01JTGD2D9GC284TAPDGGFBC3GE%20(mp3cut.net).mp3"></audio>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Loading + reveals
+      const loadingScreen = document.getElementById('loadingScreen');
+      const loadingBar = document.getElementById('loadingBar');
+      const loadingPercentage = document.getElementById('loadingPercentage');
+      let progress = 0;
+      const duration = 2500;
+      const interval = 50;
+      const increment = (100 / (duration / interval));
+      const progressInterval = setInterval(() => {
+        progress += increment;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressInterval);
+          setTimeout(() => {
+            loadingScreen.classList.add('slide-up');
+            setTimeout(() => {
+              document.querySelectorAll('.blur-reveal').forEach(el => el.classList.add('revealed'));
+              const words = document.querySelectorAll('.blur-reveal-word');
+              const mainHeadingDuration = 1500; // Faster reveal
+              const mainWordDelay = mainHeadingDuration / words.length;
+              words.forEach((word, index) => { setTimeout(() => { word.classList.add('revealed'); }, index * mainWordDelay); });
+              
+              const subWords = document.querySelectorAll('.blur-reveal-word-sub');
+              const subHeadingDuration = 1000; // Faster reveal
+              const subWordDelay = subHeadingDuration / subWords.length;
+              subWords.forEach((word, index) => { setTimeout(() => { word.classList.add('revealed'); }, mainHeadingDuration + (index * subWordDelay)); });
+              
+              setTimeout(() => {
+                const heroImage = document.getElementById('heroImage');
+                if (heroImage) {
+                    heroImage.style.transform = 'translateY(0)';
+                    heroImage.style.opacity = '1';
+                }
+              }, mainHeadingDuration);
+
+            }, 400);
+            setTimeout(() => { loadingScreen.classList.add('hidden'); }, 1200);
+          }, 300);
+        }
+        if (loadingBar) loadingBar.style.width = progress + '%';
+        if (loadingPercentage) loadingPercentage.textContent = Math.round(progress) + '%';
+      }, interval);
+      
+      // Initialize Swiper
+      const portfolioSwiper = new Swiper('.portfolio-swiper', {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 26,
+        centeredSlides: true,
+        speed: 650,
+        followFinger: true,
+        resistanceRatio: 0.65,
+        threshold: 6,
+        longSwipesMs: 120,
+        longSwipesRatio: 0.2,
+        touchRatio: 1.05,
+        simulateTouch: true,
+        cssMode: false,
+        autoplay: { delay: 4200, disableOnInteraction: false, pauseOnMouseEnter: true },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        breakpoints: { 640: { slidesPerView: 1.15 }, 768: { slidesPerView: 1.4 }, 1024: { slidesPerView: 2 } },
+      });
+
+      // Lightbox
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightboxImg');
+      const lightboxClose = document.getElementById('lightboxClose');
+      document.querySelectorAll('.portfolio-swiper .swiper-slide img').forEach(img => {
+        img.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.body.classList.add('lightbox-active');
+          lightbox.classList.add('active');
+          lightbox.setAttribute('aria-hidden', 'false');
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt || 'Portfolio preview';
+        });
+      });
+      function closeLightbox() {
+        lightbox.classList.remove('active');
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('lightbox-active');
+      }
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox(); });
+
+      // Review Card Stack JavaScript
+      const stack = document.getElementById("reviewStack");
+      function layout() {
+        if (!stack) return;
+        const cards = [...stack.children];
+        cards.forEach((c, i) => {
+          c.classList.remove("pos-0", "pos-1", "pos-2", "pos-3");
+          if (i === 0) c.classList.add("pos-0");
+          else if (i === 1) c.classList.add("pos-1");
+          else if (i === 2) c.classList.add("pos-2");
+          else c.classList.add("pos-3");
+        });
+      }
+      function bindTop() {
+        if (!stack) return;
+        const cards = [...stack.children];
+        const top = cards[0];
+        if (!top) return;
+        let startX = 0, startY = 0, moved = false;
+        const W = stack.clientWidth, THRESH = Math.max(100, W * 0.25);
+        function down(e) {
+          const ev = e.touches ? e.touches[0] : e;
+          startX = ev.clientX;
+          startY = ev.clientY;
+          moved = false;
+          top.style.transition = "none";
+          window.addEventListener(e.touches ? "touchmove" : "pointermove", move, { passive: false });
+          window.addEventListener(e.touches ? "touchend" : "pointerup", up, { passive: true });
+        }
+        function move(e) {
+          e.preventDefault();
+          const ev = e.touches ? e.touches[0] : e;
+          const dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (Math.hypot(dx, dy) > 6) moved = true;
+          top.style.transform = `translate(${dx}px,${dy}px)rotate(${dx * 0.05}deg)`;
+        }
+        function up(e) {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", up);
+          window.removeEventListener("touchmove", move);
+          window.removeEventListener("touchend", up);
+          if (!moved) return;
+
+          const ev = e.changedTouches ? e.changedTouches[0] : e;
+          const dx = ev.clientX - startX;
+          if (Math.abs(dx) > THRESH) {
+            const dirX = Math.sign(dx) || 1;
+            const offX = dirX * (W * 1.5 + 200);
+            top.style.transition = "transform .55s cubic-bezier(.22,1,.36,1), opacity .45s";
+            top.style.transform = `translate(${offX}px, ${e.clientY - startY}px) rotate(${dirX * 28}deg)`;
+            top.style.opacity = "0";
+            setTimeout(() => {
+              stack.appendChild(top);
+              top.style.transition = "";
+              top.style.transform = "";
+              top.style.opacity = "";
+              layout();
+              bindTop();
+            }, 520);
+          } else {
+            top.style.transition = "transform .4s ease";
+            top.style.transform = "";
+          }
+        }
+        top.addEventListener("pointerdown", down, { passive: true });
+        top.addEventListener("touchstart", down, { passive: true });
+      }
+      const reviewLb = document.getElementById("reviewLightbox"), reviewLbImg = document.getElementById("reviewLightboxImg");
+      if (stack) {
+        stack.addEventListener("click", e => {
+          if (e.target.classList.contains("review-image")) {
+            reviewLb.style.display = "flex";
+            reviewLbImg.src = e.target.dataset.full || e.target.src;
+          }
+        });
+        reviewLb.addEventListener("click", () => reviewLb.style.display = "none");
+        layout();
+        bindTop();
+        window.addEventListener("resize", layout);
+      }
+
+      // Contact form submit
+      function createCelebrationConfetti() {
+        const sound = document.getElementById("confettiSound");
+        if (sound) { sound.currentTime = 0; sound.play().catch(() => {}); }
+        confetti({ particleCount: 60, angle: 60, spread: 70, origin: { x: 0 }, shapes: ["square","rectangle"], scalar: 1.2, colors: ["#FF5F6D","#FFC371","#7CFFCB","#1E2AD2","#FF9A00"] });
+        confetti({ particleCount: 60, angle: 120, spread: 70, origin: { x: 1 }, shapes: ["square","rectangle"], scalar: 1.2, colors: ["#FF5F6D","#FFC371","#7CFFCB","#1E2AD2","#FF9A00"] });
+      }
+      const contactForm = document.getElementById("contactForm");
+      if(contactForm) {
+        contactForm.addEventListener("submit", function(e) {
+          e.preventDefault();
+          const submitButton = this.querySelector('button[type="submit"]');
+          const originalText = submitButton.innerHTML;
+          submitButton.innerHTML = `<svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...`;
+          submitButton.disabled = true;
+          const formData = new FormData(this);
+          fetch(this.action, { method: this.method, body: formData })
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                this.reset();
+                createCelebrationConfetti();
+                submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Message Sent!`;
+                submitButton.style.background = 'linear-gradient(90deg, #10B981, #059669)';
+                setTimeout(() => { submitButton.innerHTML = originalText; submitButton.style.background = ''; submitButton.disabled = false; }, 3000);
+              } else { throw new Error(data.message); }
+            })
+            .catch(() => {
+              this.reset();
+              createCelebrationConfetti();
+              alert("Message sent successfully (Demo Mode)!");
+              submitButton.innerHTML = originalText;
+              submitButton.disabled = false;
+            });
+        });
+      }
+
+      // Smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', e => {
+          let targetId = link.getAttribute('href');
+          // special case for home link
+          if (targetId === '#') {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              return;
+          }
+          const target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu && mobileMenu.classList.contains('open')) closeMenu();
+          }
+        });
+      });
+
+      // Mobile menu
+      const mobileBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const navBackdrop = document.getElementById('navBackdrop');
+
+      function openMenu(){
+        mobileMenu.classList.remove('hidden');
+        void mobileMenu.offsetHeight;
+        mobileMenu.classList.add('open');
+        navBackdrop.classList.add('show');
+        const top = mobileBtn.querySelector('.top');
+        const mid = mobileBtn.querySelector('.mid');
+        const bot = mobileBtn.querySelector('.bot');
+        top.style.transform = 'translateY(6px) rotate(45deg)';
+        mid.style.opacity = '0';
+        bot.style.transform = 'translateY(-6px) rotate(-45deg)';
+      }
+      function closeMenu(){
+        mobileMenu.classList.remove('open');
+        navBackdrop.classList.remove('show');
+        setTimeout(()=>{ mobileMenu.classList.add('hidden'); }, 500);
+        const top = mobileBtn.querySelector('.top');
+        const mid = mobileBtn.querySelector('.mid');
+        const bot = mobileBtn.querySelector('.bot');
+        top.style.transform = ''; mid.style.opacity = ''; bot.style.transform = '';
+      }
+      if(mobileBtn) {
+        mobileBtn.addEventListener('click', () => {
+          mobileBtn.classList.add('tap-bounce');
+          setTimeout(()=> mobileBtn.classList.remove('tap-bounce'), 250);
+          if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+        });
+        document.querySelectorAll('#mobileMenu .menu-item').forEach((item) => {
+          item.addEventListener('click', () => { closeMenu(); });
+        });
+        navBackdrop.addEventListener('click', closeMenu);
+      }
+
+      // Year
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Resume download sample
+      const downloadResumeBtn = document.getElementById('downloadResume');
+      if (downloadResumeBtn) {
+        downloadResumeBtn.addEventListener('click', () => {
+          const content = `Fasih ur Rehman\nGraphic Designer\n\nProfile\n— Designer focusing on branding, illustration and UI...\n\nContact\n— fassihmaan6767@gmail.com`;
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'Fasih_Resume.txt';
+          document.body.appendChild(a); a.click(); a.remove();
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      // Button shimmer
+      function shimmer(el){ el.classList.remove('active'); void el.offsetWidth; el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 700); }
+      ['tiktokBtn', 'heroTiktokBtn', 'heroFiverrBtn'].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) btn.addEventListener('click', () => shimmer(btn));
+      });
+      
+      // Numbers
+      function animateCounter(containerId, endValue, suffix = "", delayBetween = 140, onStep) {
+        const container = document.getElementById(containerId); if (!container) return;
+        let current = 0;
+        function updateNext() {
+          if (current > endValue) { if (suffix) { const suf = document.createElement("span"); suf.textContent = suffix; container.appendChild(suf); } return; }
+          const newDigits = String(current).split("");
+          container.innerHTML = newDigits.map(d => `<span class="digit-container" data-digit="${d}"><span class="digit show">${d}</span></span>`).join('');
+          if (onStep) onStep(current);
+          current++; setTimeout(updateNext, delayBetween);
+        }
+        updateNext();
+      }
+      let countersPlayed = false;
+      const aboutSection = document.getElementById('about');
+      if (aboutSection) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !countersPlayed) {
+              countersPlayed = true;
+              animateCounter("years", 2, "", 180);
+              setTimeout(() => {
+                animateCounter("projects", 20, "", 130, (val) => {
+                  if (val === 12) setTimeout(() => animateCounter("delivery", 24, "", 120), 350);
+                });
+              }, 400);
+              observer.unobserve(aboutSection);
+            }
+          });
+        }, { threshold: 0.35 });
+        observer.observe(aboutSection);
+      }
+
+      // Copy email quick
+      const copyEmailBtn = document.getElementById('copyEmail');
+      if(copyEmailBtn) {
+        copyEmailBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText('fassihmaan6767@gmail.com');
+            alert('Email copied to clipboard!');
+          } catch {
+            alert('Copy not available. Please copy manually.');
+          }
+        });
+      }
+
+      // Hero Button's Particle Script
+      const button = document.getElementById('ai-button');
+      const particleArea = document.getElementById('particle-area');
+      let particleInterval = null;
+
+      // Star SVG Path Data
+      const STAR_PATH_D = 'M2.221 2.121 L2.858 0.53 C2.889 0.452 2.965 0.4 3.05 0.4 C3.135 0.4 3.211 0.452 3.242 0.53 L3.879 2.121 L5.47 2.758 C5.548 2.789 5.6 2.865 5.6 2.95 C5.6 3.035 5.548 3.111 5.47 3.142 L3.879 3.779 L3.242 5.37 C3.211 5.449 3.135 5.5 3.05 5.5 C2.965 5.5 2.889 5.449 2.858 5.37 L2.221 3.779 L0.63 3.142 C0.551 3.111 0.5 3.035 0.5 2.95 C0.5 2.865 0.551 2.789 0.63 2.758 Z';
+
+      function getButtonMetrics() {
+          const rect = button.getBoundingClientRect();
+          const buttonWidth = rect.width;
+          const buttonHeight = rect.height;
+          
+          const OFFSET = 100;
+          const centerX = buttonWidth / 2 + OFFSET;
+          const centerY = buttonHeight / 2 + OFFSET;
+          const radius = Math.min(buttonWidth, buttonHeight) / 2;
+          
+          return { centerX, centerY, radius, width: buttonWidth, height: buttonHeight };
+      }
+
+      function getRandomStartPosition(metrics) {
+          const spawnDistance = 150; 
+          const minDistance = metrics.radius + 10; 
+
+          const angle = Math.random() * 2 * Math.PI;
+          const distance = Math.random() * (spawnDistance - minDistance) + minDistance;
+
+          const startX = metrics.centerX + distance * Math.cos(angle);
+          const startY = metrics.centerY + distance * Math.sin(angle);
+          
+          return { x: startX, y: startY, angle };
+      }
+
+      function createParticle() {
+          const metrics = getButtonMetrics();
+          
+          const mode = Math.random() < 0.7 ? 'in' : 'out'; 
+          
+          let start, end, targetAngle, duration;
+          
+          if (mode === 'in') {
+              start = getRandomStartPosition(metrics);
+              targetAngle = start.angle;
+              const targetDistance = metrics.radius * 0.8; 
+              end = {
+                  x: metrics.centerX + targetDistance * Math.cos(targetAngle),
+                  y: metrics.centerY + targetDistance * Math.sin(targetAngle),
+              };
+              duration = Math.random() * 3000 + 5000; 
+
+          } else {
+              targetAngle = Math.random() * 2 * Math.PI; 
+              const startDistance = metrics.radius * (Math.random() * 0.4 + 0.1); 
+              start = {
+                  x: metrics.centerX + startDistance * Math.cos(targetAngle),
+                  y: metrics.centerY + startDistance * Math.sin(targetAngle),
+                  angle: targetAngle
+              };
+              const endDistance = metrics.radius + 200; 
+              end = {
+                  x: metrics.centerX + endDistance * Math.cos(targetAngle),
+                  y: metrics.centerY + endDistance * Math.sin(targetAngle),
+              };
+              duration = Math.random() * 3000 + 5000; 
+          }
+
+          const particle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          particle.setAttribute('viewBox', '0 0 6 6');
+          particle.classList.add('particle', 'absolute');
+          
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute('d', STAR_PATH_D);
+          path.setAttribute('fill', 'currentColor'); 
+          particle.appendChild(path);
+          
+          const size = Math.random() * 2.5 + 4; 
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          
+          particle.style.color = `hsla(270, 96%, 75%, 0.9)`;
+          
+          particle.style.left = `${start.x}px`;
+          particle.style.top = `${start.y}px`;
+          particle.style.opacity = '0';
+          
+          particleArea.appendChild(particle);
+
+          const delay = Math.random() * 1000; 
+          const isWobble = Math.random() > 0.3;
+
+          const end_translateX = end.x - start.x;
+          const end_translateY = end.y - start.y;
+
+          setTimeout(() => {
+              if (isWobble) {
+                  const midDuration = duration * 0.5;
+                  const deviationStrength = 150; 
+                  const perpendicularAngle = targetAngle + (Math.PI / 2) * (Math.random() > 0.5 ? 1 : -1);
+                  const deviationDistance = (Math.random() * 0.5 + 0.5) * deviationStrength;
+
+                  const midX_Base = start.x + (end.x - start.x) * 0.5;
+                  const midY_Base = start.y + (end.y - start.y) * 0.5;
+
+                  const midX = midX_Base + deviationDistance * Math.cos(perpendicularAngle);
+                  const midY = midY_Base + deviationDistance * Math.sin(perpendicularAngle);
+                  
+                  const mid_translateX = midX - start.x;
+                  const mid_translateY = midY - start.y;
+
+                  particle.style.transition = `transform ${midDuration}ms ease-out, opacity ${midDuration * 0.5}ms ease-in`;
+                  
+                  particle.style.transform = `translate(-50%, -50%) translate(${mid_translateX}px, ${mid_translateY}px) rotate(${Math.random() * 360}deg)`;
+                  particle.style.opacity = '0.75'; 
+
+                  setTimeout(() => {
+                      const remainingDuration = duration - midDuration;
+                      
+                      particle.style.transition = `transform ${remainingDuration}ms ease-in, opacity ${remainingDuration * 0.5}ms ease-out`;
+
+                      particle.style.transform = `translate(-50%, -50%) translate(${end_translateX}px, ${end_translateY}px) rotate(${Math.random() * 360}deg)`;
+                      particle.style.opacity = '0';
+
+                      setTimeout(() => particle.remove(), remainingDuration); 
+
+                  }, midDuration); 
+
+              } else {
+                  particle.style.transition = `transform ${duration}ms linear, opacity ${duration * 0.5}ms ease-in-out`;
+                  
+                  particle.style.transform = `translate(-50%, -50%) translate(${end_translateX}px, ${end_translateY}px) rotate(${Math.random() * 360}deg)`;
+                  particle.style.opacity = '0.9'; 
+
+                  setTimeout(() => {
+                      particle.style.opacity = '0';
+                      setTimeout(() => {
+                          particle.remove();
+                      }, duration * 0.5); 
+                  }, duration * 0.5); 
+              }
+              
+          }, delay);
+      }
+
+      function startParticles() {
+          if (particleInterval) clearInterval(particleInterval);
+
+          for (let i = 0; i < 8; i++) {
+              createParticle();
+          }
+
+          particleInterval = setInterval(() => {
+              for (let i = 0; i < 1; i++) { 
+                  createParticle();
+              }
+          }, 200); 
+      }
+
+      function stopParticles() {
+          clearInterval(particleInterval);
+          particleInterval = null;
+      }
+
+      // Event Listeners
+      if (button) {
+          button.addEventListener('mouseenter', startParticles);
+          button.addEventListener('mouseleave', stopParticles);
+          button.addEventListener('focusin', startParticles);
+          button.addEventListener('focusout', stopParticles);
+      }
+
+
+      /******************************************/
+      /* --- FLOATING AI BUTTON SCRIPT START --- */
+      /******************************************/
+
+      const floatingWrap = document.getElementById('floatingWrap');
+      const floatingBtn = document.getElementById('aiBtn');
+      const floatingParticleArea = document.getElementById('particleAreaFloat');
+      const floatingStar = document.getElementById('starSvg');
+      const workSection = document.getElementById('work');
+
+      // Visibility Controller
+      if (workSection && floatingWrap) {
+          const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                  // Show if the top of the work section is visible OR has been scrolled past (is above the viewport)
+                  if (entry.isIntersecting || entry.boundingClientRect.y < 0) {
+                      if (!floatingWrap.classList.contains('visible')) {
+                          floatingWrap.classList.add('visible');
+                          restartStar(); 
+                      }
+                  } else {
+                      if (floatingWrap.classList.contains('visible')) {
+                          floatingWrap.classList.remove('visible');
+                          resetHoverState();
+                      }
+                  }
+              });
+          }, {
+              rootMargin: '0px',
+              threshold: 0 // Trigger as soon as the first pixel enters/leaves
+          });
+          observer.observe(workSection);
+      }
+
+      // Particle and Animation Logic
+      let floatingParticles = [];
+      const MIN = 6, MAX = 8;
+      let raf = null;
+
+      function getRadii(rect) {
+        const r = rect.width / 2;
+        return { START: r - 4, OUT_MIN: r + 6, OUT_MAX: r + 26 };
+      }
+
+      function createFloatingParticle() {
+        const ns = "http://www.w3.org/2000/svg";
+        const s = document.createElementNS(ns, "svg");
+        s.setAttribute("viewBox", "0 0 6 6");
+        const p = document.createElementNS(ns, "path");
+        p.setAttribute("d", "M2.221 2.121 L2.858 0.53 C2.889 0.452 2.965 0.4 3.05 0.4 C3.135 0.4 3.211 0.452 3.242 0.53 L3.879 2.121 L5.47 2.758 C5.548 2.789 5.6 2.865 5.6 2.95 C5.6 3.035 5.548 3.111 5.47 3.142 L3.879 3.779 L3.242 5.37 C3.211 5.449 3.135 5.5 3.05 5.5 C2.965 5.5 2.889 5.449 2.858 5.37 L2.221 3.779 L0.63 3.142 C0.551 3.111 0.5 3.035 0.5 2.95 C0.5 2.865 0.551 2.789 0.63 2.758 Z");
+        p.setAttribute("fill", "currentColor");
+        s.appendChild(p);
+        s.classList.add("particle");
+        s.style.color = 'var(--particle-color)';
+        s.style.width = (Math.random() * 4 + 4) + "px";
+        s.style.height = s.style.width;
+        s.style.left = '50%';
+        s.style.top = '50%';
+        floatingParticleArea.appendChild(s);
+        return s;
+      }
+
+      function initParticles() {
+        floatingParticleArea.innerHTML = '';
+        floatingParticles = [];
+        const count = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+        const rect = floatingBtn.getBoundingClientRect();
+        const { START, OUT_MIN, OUT_MAX } = getRadii(rect);
+        for (let i = 0; i < count; i++) {
+          const el = createFloatingParticle();
+          const ang = (i / count) * Math.PI * 2 + (Math.random() * 0.6 - 0.3);
+          const tR = OUT_MIN + Math.random() * (OUT_MAX - OUT_MIN);
+          floatingParticles.push({ el, ang, r: START, targetR: tR, startR: START, speed: 0.08 + Math.random() * 0.05, phase: Math.random() * 360 });
+          position(el, rect, ang, START);
+        }
+      }
+
+      function position(el, rect, ang, rad) {
+        const cx = rect.width / 2, cy = rect.height / 2;
+        el.style.left = cx + Math.cos(ang) * rad + 'px';
+        el.style.top = cy + Math.sin(ang) * rad + 'px';
+      }
+
+      function animate() {
+        const rect = floatingBtn.getBoundingClientRect();
+        let moving = false;
+        floatingParticles.forEach(p => {
+          const d = p.targetR - p.r;
+          if (Math.abs(d) > 0.3) {
+            p.r += d * p.speed;
+            moving = true;
+          } else {
+            p.r = p.targetR;
+          }
+          position(p.el, rect, p.ang, p.r);
+          const v = Math.min(1, (p.r - p.startR) / (Math.max(1, p.targetR - p.startR)));
+          p.el.style.opacity = (p.r > p.startR + 2) ? (0.25 + 0.75 * v) : 0;
+          p.phase += 1.4;
+          p.el.style.transform = `translate(-50%, -50%) rotate(${p.phase}deg)`;
+        });
+        if (moving) raf = requestAnimationFrame(animate);
+        else raf = null;
+      }
+
+      function startHover() {
+        floatingBtn.classList.add('hover-wave');
+        floatingStar.classList.add('blink');
+        if (floatingParticles.length === 0) initParticles();
+        const { OUT_MIN, OUT_MAX } = getRadii(floatingBtn.getBoundingClientRect());
+        floatingParticles.forEach(p => { p.targetR = OUT_MIN + Math.random() * (OUT_MAX - OUT_MIN); });
+        if (!raf) raf = requestAnimationFrame(animate);
+      }
+
+      function endHover() {
+        floatingBtn.classList.remove('hover-wave');
+        floatingStar.classList.remove('blink');
+        floatingParticles.forEach(p => p.targetR = 0);
+        if (!raf) raf = requestAnimationFrame(animate);
+        setTimeout(() => { floatingParticles = []; floatingParticleArea.innerHTML = ''; }, 400);
+      }
+
+      function resetHoverState() {
+        floatingBtn.classList.remove('hover-wave');
+        floatingStar.classList.remove('blink');
+        floatingParticles = [];
+        floatingParticleArea.innerHTML = '';
+      }
+
+      function restartStar() {
+        floatingStar.classList.remove('blink');
+        void floatingStar.offsetWidth; // Trigger reflow
+        floatingStar.classList.add('blink');
+      }
+
+      floatingBtn.addEventListener('mouseenter', startHover);
+      floatingBtn.addEventListener('focus', startHover);
+      floatingBtn.addEventListener('mouseleave', endHover);
+      floatingBtn.addEventListener('blur', endHover);
+      floatingBtn.addEventListener('click', () => window.open('https://www.jotform.com/agent/0198940e466c7c6693f9e7e9dbd17f8847cf', '_blank'));
+      initParticles();
+
+    });
+  </script>
+</body>
+</html>
